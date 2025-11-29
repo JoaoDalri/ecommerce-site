@@ -1,52 +1,31 @@
 import { Suspense } from 'react';
-import HeroBanner from '@/components/HeroBanner';
 import ProductShowcase from '@/components/ProductShowcase';
 import { getFilteredProducts } from '@/services/productService';
 
-export const dynamic = 'force-dynamic'; // Garante que a home não fica cacheada estaticamente com dados velhos
-
-export const metadata = {
-  title: 'LojaPro | As Melhores Ofertas',
-  description: 'E-commerce completo com Next.js 15',
-};
-
-async function getProducts() {
-  const products = await getFilteredProducts({ sort: 'price_desc' });
-  return products || [];
-}
+// Força a página a ser dinâmica para ter sempre produtos novos
+export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const products = await getProducts();
+  // Busca dados reais do MongoDB
+  const products = await getFilteredProducts({ sort: 'price_desc' });
 
   return (
-    <main className="pb-20">
-      <HeroBanner />
-
-      <section className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
-          {[
-            { icon: '🚚', title: 'Frete Grátis', desc: 'Acima de R$ 200' },
-            { icon: '💳', title: 'Parcelamento', desc: 'Até 12x sem juros' },
-            { icon: '🛡️', title: 'Compra Segura', desc: 'Certificado SSL' },
-            { icon: '↩️', title: 'Troca Fácil', desc: '30 dias grátis' },
-          ].map((item, idx) => (
-            <div key={idx} className="p-6 bg-white rounded-xl border shadow-sm hover:shadow-md transition">
-              <div className="text-4xl mb-3">{item.icon}</div>
-              <h3 className="font-bold text-lg">{item.title}</h3>
-              <p className="text-sm text-gray-500">{item.desc}</p>
-            </div>
-          ))}
+    <main className="min-h-screen bg-gray-50">
+      {/* Banner */}
+      <section className="bg-blue-600 text-white py-20 px-4 mb-10">
+        <div className="container mx-auto text-center">
+            <h1 className="text-5xl font-bold mb-4">Ofertas Imperdíveis</h1>
+            <p className="text-xl opacity-90">Os melhores eletrônicos com os melhores preços.</p>
         </div>
       </section>
 
-      <section className="container mx-auto px-4">
+      {/* Vitrine */}
+      <section className="container mx-auto px-4 pb-20">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
-            🔥 Destaques da Semana
-          </h2>
+          <h2 className="text-3xl font-bold text-gray-800">Destaques</h2>
         </div>
 
-        <Suspense fallback={<div className="text-center py-10">A carregar ofertas...</div>}>
+        <Suspense fallback={<div className="text-center p-10">Carregando produtos...</div>}>
            <ProductShowcase products={products} />
         </Suspense>
       </section>

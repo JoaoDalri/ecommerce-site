@@ -1,140 +1,51 @@
 "use client";
 import { motion, useScroll, useTransform } from "framer-motion";
 import ProductGrid from "@/components/ProductGrid"; 
-import Image from "next/image";
+import Hero3D from "@/components/Hero3D"; 
 import { useRef } from "react";
 
 export default function HomeClient({ initialProducts }: { initialProducts: any[] }) {
-  const targetRef = useRef(null);
-  const { scrollYProgress } = useScroll({ target: targetRef, offset: ["start start", "end start"] });
-  
-  // Parallax effects
-  const yBg = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  const opacityHero = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
 
   const categories = [
-    { name: "Hardware", icon: "⚡", color: "from-indigo-600 to-blue-600" },
-    { name: "Periféricos", icon: "⌨️", color: "from-fuchsia-600 to-purple-600" },
-    { name: "Smart Home", icon: "🏠", color: "from-emerald-600 to-teal-600" },
-    { name: "Games", icon: "🎮", color: "from-orange-600 to-red-600" },
+    { name: "Hardware", color: "from-blue-600 to-indigo-600", icon: "⚡" },
+    { name: "Periféricos", color: "from-purple-600 to-pink-600", icon: "⌨️" },
+    { name: "Smart Home", color: "from-emerald-500 to-teal-500", icon: "🏠" },
+    { name: "Games", color: "from-orange-500 to-red-500", icon: "🎮" },
   ];
 
   return (
-    <div className="min-h-screen pt-24 pb-20 overflow-hidden relative" ref={targetRef}>
+    <div className="min-h-screen bg-bg relative overflow-x-hidden" ref={containerRef}>
       
-      {/* GLOBAL AMBIENT LIGHTING */}
-      <div className="fixed inset-0 z-[-1] pointer-events-none">
-          <div className="absolute top-[-10%] left-[-10%] w-[60vw] h-[60vw] bg-indigo-900/20 rounded-full blur-[120px] mix-blend-screen animate-pulse" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] bg-fuchsia-900/20 rounded-full blur-[120px] mix-blend-screen animate-pulse delay-1000" />
-      </div>
+      {/* 3D HERO SECTION com Parallax */}
+      <motion.div style={{ y }} className="relative z-0">
+        <Hero3D />
+      </motion.div>
 
-      {/* HERO SECTION 3D */}
-      <motion.section 
-        style={{ opacity: opacityHero }}
-        className="relative container mx-auto px-4 mb-32 perspective-1000"
-      >
-        <div className="relative z-10 grid lg:grid-cols-2 gap-16 items-center">
-            
-            {/* Texto Hero */}
-            <div className="relative z-20">
-                <motion.div 
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                >
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-premium mb-8">
-                        <span className="w-2 h-2 rounded-full bg-green-400 animate-ping" />
-                        <span className="text-xs font-bold tracking-widest uppercase text-gray-300">Nova Coleção 2024</span>
-                    </div>
-
-                    <h1 className="text-6xl md:text-8xl font-black text-white leading-[0.9] mb-8 tracking-tighter drop-shadow-2xl">
-                        FUTURE <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 text-glow">
-                           REALITY
-                        </span>
-                    </h1>
-
-                    <p className="text-lg text-gray-400 mb-10 max-w-lg leading-relaxed border-l-2 border-white/10 pl-6">
-                        Experimente a próxima dimensão do e-commerce. Produtos selecionados com design futurista e performance extrema.
-                    </p>
-
-                    <div className="flex flex-wrap gap-4">
-                        <motion.button 
-                            whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(99, 102, 241, 0.5)" }}
-                            whileTap={{ scale: 0.95 }}
-                            className="px-8 py-4 bg-white text-black font-bold rounded-xl relative overflow-hidden group"
-                        >
-                            <span className="relative z-10">Explorar Agora</span>
-                            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-0 group-hover:opacity-10 transition-opacity" />
-                        </motion.button>
-                        
-                        <motion.button 
-                             whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
-                             className="px-8 py-4 glass-premium text-white font-bold rounded-xl"
-                        >
-                            Ver Ofertas
-                        </motion.button>
-                    </div>
-                </motion.div>
-            </div>
-
-            {/* Elemento 3D Flutuante (Ilustrativo) */}
-            <div className="relative hidden lg:flex justify-center perspective-1000">
-                <motion.div 
-                    initial={{ opacity: 0, rotateY: -30, x: 50 }}
-                    animate={{ opacity: 1, rotateY: -15, x: 0 }}
-                    transition={{ duration: 1.5, type: "spring" }}
-                    style={{ transformStyle: "preserve-3d" }}
-                    className="relative w-[400px] h-[500px]"
-                >
-                    {/* Floating Cards Simulation */}
-                    <motion.div 
-                        animate={{ y: [-15, 15, -15], rotateZ: [-2, 2, -2] }}
-                        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute inset-0 glass-premium rounded-[40px] z-10 flex items-center justify-center bg-gradient-to-br from-white/5 to-transparent border-t border-l border-white/20"
-                    >
-                        <div className="text-center">
-                            <div className="text-6xl mb-4">👟</div>
-                            <h3 className="text-2xl font-bold">Cyber Sneakers</h3>
-                            <p className="text-indigo-400">Edição Limitada</p>
-                        </div>
-                    </motion.div>
-                    
-                    <motion.div 
-                        animate={{ y: [20, -20, 20], x: [20, 10, 20] }}
-                        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                        className="absolute top-10 -right-20 w-64 h-40 glass-premium rounded-3xl z-0 backdrop-blur-sm bg-indigo-900/30 border border-indigo-500/30 flex items-center justify-center"
-                    >
-                         <span className="font-mono text-indigo-300 text-sm">STATUS: EM ESTOQUE</span>
-                    </motion.div>
-                </motion.div>
-            </div>
-        </div>
-      </motion.section>
-
-      {/* Categories Grid - 3D Cards */}
-      <section className="container mx-auto px-4 mb-32">
-        <h2 className="text-3xl font-bold mb-10 flex items-center gap-4">
-            <span className="w-12 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"/>
-            Categorias
-        </h2>
+      {/* Categories - Flutuando sobre a Hero */}
+      <section className="container mx-auto px-4 relative z-10 -mt-24 mb-32">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {categories.map((cat, i) => (
                 <motion.div
                     key={cat.name}
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 0, y: 50 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
-                    whileHover={{ y: -10, rotateX: 5, rotateY: 5, scale: 1.05 }}
-                    className="relative h-48 rounded-3xl overflow-hidden cursor-pointer group perspective-1000"
+                    transition={{ delay: i * 0.1, type: "spring" }}
+                    whileHover={{ y: -10, scale: 1.02 }}
+                    className="glass-panel p-6 rounded-3xl h-48 flex flex-col justify-between cursor-pointer group hover:border-primary/50 transition-colors overflow-hidden relative"
                 >
-                    <div className={`absolute inset-0 bg-gradient-to-br ${cat.color} opacity-20 group-hover:opacity-100 transition-all duration-500`} />
-                    <div className="absolute inset-0 glass-premium group-hover:bg-transparent transition-colors duration-500" />
+                    <div className={`absolute -right-4 -top-4 w-24 h-24 bg-gradient-to-br ${cat.color} rounded-full blur-[40px] opacity-20 group-hover:opacity-40 transition-opacity`} />
                     
-                    <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-                        <span className="text-5xl mb-4 transform group-hover:scale-125 transition-transform duration-300 drop-shadow-lg">{cat.icon}</span>
-                        <h3 className="font-bold text-xl text-white group-hover:tracking-widest transition-all duration-300">{cat.name}</h3>
+                    <span className="text-4xl bg-white/5 w-12 h-12 flex items-center justify-center rounded-2xl group-hover:scale-110 transition-transform">
+                        {cat.icon}
+                    </span>
+                    
+                    <div>
+                        <h3 className="font-bold text-xl text-white mb-1">{cat.name}</h3>
+                        <div className="w-8 h-1 bg-gray-700 rounded-full group-hover:w-full group-hover:bg-primary transition-all duration-500" />
                     </div>
                 </motion.div>
             ))}
@@ -142,9 +53,16 @@ export default function HomeClient({ initialProducts }: { initialProducts: any[]
       </section>
 
       {/* PRODUCTS GRID */}
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 pb-32 relative z-10">
+        {/* Faixa decorativa de fundo */}
+        <div className="absolute top-20 left-0 right-0 h-[500px] bg-gradient-to-b from-primary/5 to-transparent -z-10 blur-3xl" />
         <ProductGrid products={initialProducts} />
       </div>
+      
+      {/* Footer Simples */}
+      <footer className="border-t border-white/5 bg-black py-12 text-center relative z-10">
+        <p className="text-gray-500 text-sm">© 2025 LUMINA. Design Futurista.</p>
+      </footer>
     </div>
   );
 }

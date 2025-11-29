@@ -1,73 +1,56 @@
-'use client';
+'use client'
+import Image from 'next/image'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { useCart } from '@/lib/context/CartContext'
 
-import Link from 'next/link';
-import { useCart } from '@/context/CartContext';
-import Image from 'next/image'; 
-
-interface ProductCardProps {
-  product: any;
-  onQuickView: (product: any) => void;
-}
-
-export default function ProductCard({ product, onQuickView }: ProductCardProps) {
-  const { addToCart } = useCart();
-  
-  // Tratamento seguro da imagem
-  const hasImage = product.images && product.images.length > 0;
-  const imageSrc = hasImage ? product.images[0] : '/next.svg';
-
-  return (
-    <div className="group bg-white rounded-xl border hover:shadow-xl transition-all duration-300 relative overflow-hidden flex flex-col h-full">
-      {product.oldPrice && (
-        <span className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded z-10">
-          -20%
-        </span>
-      )}
-
-      <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all z-10 translate-x-4 group-hover:translate-x-0">
-        <button 
-          onClick={(e) => { e.preventDefault(); onQuickView(product); }}
-          className="bg-white p-2 rounded-full shadow-md hover:bg-blue-50 text-gray-600" 
-          title="Visualização Rápida"
+export default function ProductCard({ product, onQuickView }: any) {
+    const { add } = useCart()
+    
+    return (
+        <motion.div 
+            whileHover={{ y: -10 }}
+            className="group relative h-full"
         >
-          👁️
-        </button>
-      </div>
+            {/* Card Body - Fundo Escuro Glass */}
+            <div className="relative h-full glass-panel rounded-2xl p-4 flex flex-col overflow-hidden group-hover:border-indigo-500/30 transition-all duration-300 bg-[#121212]">
+                
+                {/* Imagem */}
+                <div className="relative w-full aspect-square mb-4 rounded-xl bg-gradient-to-b from-white/5 to-transparent flex items-center justify-center overflow-hidden">
+                    <Image 
+                        src={product.img || '/next.svg'} 
+                        width={200} height={200}
+                        alt={product.title}
+                        className="object-contain drop-shadow-xl transition-transform duration-500 group-hover:scale-110"
+                    />
+                    
+                    {/* Ações Rápidas */}
+                    <div className="absolute bottom-3 flex gap-2 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all">
+                        <button 
+                            onClick={(e) => { e.preventDefault(); onQuickView(); }}
+                            className="bg-white text-black px-4 py-2 rounded-lg font-bold text-xs hover:bg-gray-200"
+                        >
+                            Ver
+                        </button>
+                    </div>
+                </div>
 
-      <Link href={`/product/${product._id}`} className="block flex-1">
-        <div className="h-60 bg-gray-50 flex items-center justify-center p-6 relative w-full">
-           <Image 
-             src={imageSrc} 
-             alt={product.title} 
-             fill
-             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-             className="object-contain mix-blend-multiply p-4 group-hover:scale-105 transition-transform duration-300"
-           />
-        </div>
-      </Link>
-
-      <div className="p-4 mt-auto">
-        <p className="text-xs text-gray-500 mb-1 capitalize">{product.category}</p>
-        <Link href={`/product/${product._id}`}>
-          <h3 className="font-bold text-gray-800 truncate hover:text-blue-600 mb-2" title={product.title}>
-            {product.title}
-          </h3>
-        </Link>
-        
-        <div className="flex items-end justify-between mt-2">
-          <div>
-            {product.oldPrice && <span className="text-sm text-gray-400 line-through">R$ {product.oldPrice}</span>}
-            <div className="text-lg font-bold text-blue-600">R$ {product.price?.toFixed(2) || '0.00'}</div>
-          </div>
-          <button 
-            onClick={(e) => { e.preventDefault(); addToCart(product); }}
-            className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition flex items-center justify-center w-10 h-10"
-            title="Adicionar ao Carrinho"
-          >
-            +
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+                {/* Info */}
+                <div className="mt-auto">
+                    <h3 className="text-gray-200 font-medium text-lg mb-1 truncate group-hover:text-white transition-colors">{product.title}</h3>
+                    <p className="text-xs text-gray-500 mb-3">{product.category || 'Eletrônicos'}</p>
+                    
+                    <div className="flex items-center justify-between">
+                        <span className="text-lg font-bold text-indigo-400">R$ {product.price.toFixed(2)}</span>
+                        <button 
+                            onClick={() => add({ id: product._id, title: product.title, price: product.price, img: product.img })}
+                            className="w-8 h-8 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center transition-colors"
+                        >
+                            +
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </motion.div>
+    )
 }

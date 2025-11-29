@@ -1,75 +1,86 @@
-'use client';
-
-import Link from 'next/link';
-import { useState } from 'react';
-import { useCart } from '@/context/CartContext';
-import { useAuth } from '@/context/AuthContext'; // NOVO: Importar useAuth
+'use client'
+import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useCart } from '@/lib/context/CartContext'
+import { useAuth } from '@/lib/context/AuthContext'
+import Image from 'next/image'
+import { useState } from 'react'
 
 export default function Navbar() {
-  const { items } = useCart();
-  const { isAuthenticated, user, logout } = useAuth(); // Usar Auth Context
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { items } = useCart()
+  const { user, logout } = useAuth()
+  const totalItems = items.reduce((sum, item) => sum + item.qty, 0)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <nav className="bg-white border-b sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-blue-600">
-            LojaPro
-          </Link>
+    <motion.header 
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      className="fixed top-0 left-0 right-0 z-50 px-4 py-6 pointer-events-none"
+    >
+      <div className="glass-panel mx-auto max-w-7xl rounded-2xl px-6 py-3 flex items-center justify-between pointer-events-auto bg-[#0a0a0a]/90 backdrop-blur-xl border border-white/10">
+        
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-pink-500 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-indigo-500/20">L</div>
+          <span className="text-xl font-bold tracking-tight text-white group-hover:text-indigo-400 transition-colors">LUMINA</span>
+        </Link>
+        
+        <nav className="hidden md:flex items-center gap-8">
+          {['Home', 'Produtos', 'Ofertas'].map((item) => (
+            <Link key={item} href="/" className="text-sm font-medium text-gray-400 hover:text-white transition-colors relative group">
+                {item}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-accent transition-all group-hover:w-full"></span>
+            </Link>
+          ))}
+        </nav>
 
-          {/* Busca */}
-          <div className="hidden md:flex flex-1 mx-10 relative">
-            <input 
-              type="text" 
-              placeholder="O que procura hoje?" 
-              className="w-full border rounded-full py-2 px-4 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition"
-            />
-            <button className="absolute right-3 top-2.5 text-gray-400 hover:text-blue-600">
-              🔍
-            </button>
-          </div>
-
-          {/* Ícones e Menu */}
-          <div className="flex items-center gap-6">
-            {isAuthenticated ? (
-                // Se Logado
-                <Link href="/profile" className="hidden md:block text-gray-600 hover:text-blue-600 font-semibold">
-                    👤 {user?.name.split(' ')[0]}
-                </Link>
+        <div className="flex items-center gap-4">
+            {user ? (
+                <div className="relative">
+                    <button onClick={() => setMenuOpen(!menuOpen)} className="flex items-center gap-3 hover:bg-white/5 px-3 py-1.5 rounded-xl transition-colors">
+                        <div className="text-right hidden sm:block">
+                            <p className="text-xs text-gray-400">Olá,</p>
+                            <p className="text-sm font-bold text-white leading-none">{user.name}</p>
+                        </div>
+                        <div className="w-10 h-10 rounded-full border-2 border-primary/50 overflow-hidden bg-gray-800">
+                            {/* Avatar gerado ou placeholder */}
+                            <img src={user.avatar} alt="User" className="w-full h-full" />
+                        </div>
+                    </button>
+                    
+                    <AnimatePresence>
+                        {menuOpen && (
+                            <motion.div 
+                                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+                                className="absolute top-full right-0 mt-2 w-48 bg-[#111] border border-white/10 rounded-xl shadow-2xl overflow-hidden py-1"
+                            >
+                                <button onClick={logout} className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors">
+                                    Sair da conta
+                                </button>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
             ) : (
-                // Se Deslogado
-                <Link href="/login" className="hidden md:block text-gray-600 hover:text-blue-600">
-                    Login
+                <Link href="/login" className="px-6 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-bold text-white transition-all">
+                    Entrar
                 </Link>
             )}
-            
-            <Link href="/cart" className="relative text-gray-600 hover:text-blue-600">
-              🛒
-              {items.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                  {items.length}
-                </span>
-              )}
-            </Link>
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden text-2xl">
-              ☰
-            </button>
-          </div>
-        </div>
 
-        {/* Categorias (Sub-menu) */}
-        <div className="hidden md:flex gap-8 mt-4 text-sm font-medium text-gray-600 overflow-x-auto pb-2">
-          <Link href="/search?category=Eletrônicos" className="hover:text-blue-600 whitespace-nowrap">Eletrónicos</Link>
-          <Link href="/search?category=Moda" className="hover:text-blue-600 whitespace-nowrap">Moda</Link>
-          <Link href="/search" className="hover:text-blue-600 whitespace-nowrap">Busca Avançada</Link>
-          {user?.role === 'admin' && (
-              <Link href="/admin" className="text-purple-500 font-bold hover:text-purple-700 whitespace-nowrap">
-                  ⭐ Admin Dashboard
-              </Link>
-          )}
+            <Link href="/cart" className="relative group">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-primary to-indigo-700 text-white shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all transform group-hover:scale-105">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                </div>
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-[#0a0a0a]">
+                    {totalItems}
+                  </span>
+                )}
+            </Link>
         </div>
       </div>
-    </nav>
-  );
+    </motion.header>
+  )
 }

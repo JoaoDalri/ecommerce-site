@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, model, models } from 'mongoose';
 
 const ReviewSchema = new Schema({
   user: { type: String, required: true },
@@ -20,6 +20,7 @@ const ProductSchema = new Schema({
   numReviews: { type: Number, default: 0 },
 }, { timestamps: true });
 
-ProductSchema.index({ title: 'text', description: 'text' });
+// Importante: Evitar recompilação do modelo
+const Product = models.Product || model('Product', ProductSchema);
 
-export default mongoose.models.Product || mongoose.model('Product', ProductSchema);
+export default Product;
