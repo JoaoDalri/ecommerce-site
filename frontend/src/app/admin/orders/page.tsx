@@ -1,9 +1,13 @@
+// Server Component
 import dbConnect from '@/lib/dbConnect';
 import Order from '@/models/Order';
 
 export default async function AdminOrders() {
-  await dbConnect();
-  const orders = await Order.find({}).sort({ createdAt: -1 }).populate('user', 'name email');
+  // Configuração para garantir que o Server Component busca dados frescos
+  const orders = await getOrdersData();
+  
+  // NOTE: A VERIFICAÇÃO DE ROLE DE ADMIN DEVE OCORRER NO MIDDLEWARE.TS E NO LAYOUT (FEITO NO PASSO 14/2).
+  // Se o usuário chegar aqui, ele já está logado e foi verificado no layout.
 
   return (
     <div>
@@ -30,7 +34,7 @@ export default async function AdminOrders() {
                 <td className="p-4">
                   <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                     order.status === 'delivered' ? 'bg-green-100 text-green-700' :
-                    order.status === 'shipped' ? 'bg-blue-100 text-blue-700' :
+                    order.status === 'paid' ? 'bg-blue-100 text-blue-700' :
                     'bg-yellow-100 text-yellow-700'
                   }`}>
                     {order.status}
@@ -47,4 +51,19 @@ export default async function AdminOrders() {
       </div>
     </div>
   );
+}
+
+// Função de Server Data Fetching, garantindo que não usa cache estático do build (SSR/ISR)
+async function getOrdersData() {
+    await dbConnect();
+    // Revalidação manual (Next.js 14+)
+    const { revalidatePath } = require('next/cache');
+    revalidatePath('/admin/orders'); 
+    
+    // Configuração de cache no fetch nativo (fetch(..., { cache: 'no-store' })) seria uma alternativa
+    
+    const orders = await Order.find({}).sort({ createdAt: -1 }).populate('user', 'name email').lean();
+
+    // Mongoose retorna ObjectIds. Convertemos para string para evitar erros de serialização em Server Components
+    return JSON.parse(JSON.stringify(orders));
 }

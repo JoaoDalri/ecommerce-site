@@ -14,80 +14,103 @@ export default function ProductPage({ params }: { params: { id: string } }){
   const router = useRouter()
 
   if (isLoading) return (
-    <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-primary-accent border-t-transparent rounded-full animate-spin"/>
+    <div className="h-screen flex items-center justify-center bg-bg">
+        <div className="flex flex-col items-center gap-4">
+            <div className="w-16 h-16 border-2 border-primary border-t-transparent rounded-full animate-spin"/>
+            <p className="text-gray-500 animate-pulse">Carregando experiência...</p>
+        </div>
     </div>
   )
   
-  if (error || !product || product.error) return <div className="container py-20 text-center text-red-500">Produto não encontrado</div>
+  if (error || !product) return <div className="container pt-32 text-center text-red-400">Produto indisponível</div>
 
   const mainImage = product.images?.[0] || '/next.svg'
 
   return (
-    <div className="container mx-auto px-4 py-10">
+    <div className="min-h-screen pt-28 pb-20 container mx-auto px-4">
       <motion.button 
         onClick={() => router.back()}
-        className="mb-8 text-muted hover:text-white transition-colors flex items-center gap-2"
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="mb-8 px-4 py-2 rounded-full border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-2 text-sm font-medium w-fit"
       >
-        ← Voltar
+        &larr; Voltar
       </motion.button>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        {/* Imagem */}
-        <motion.div 
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="bg-surface rounded-3xl p-8 flex items-center justify-center border border-white/5 relative group"
-        >
-            <div className="absolute inset-0 bg-primary-accent/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"/>
-            <Image 
-              src={mainImage} 
-              alt={product.name} 
-              width={500}
-              height={500}
-              className="object-contain relative z-10 drop-shadow-2xl" 
-            />
-        </motion.div>
+      <div className="grid lg:grid-cols-2 gap-16">
+        
+        {/* Left: Sticky Image */}
+        <div className="relative">
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="sticky top-32 glass-panel rounded-3xl p-10 flex items-center justify-center aspect-square bg-gradient-to-br from-gray-900 to-black overflow-hidden"
+            >
+                <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20 pointer-events-none" />
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[80px]" />
+                
+                <Image 
+                  src={mainImage} 
+                  alt={product.name} 
+                  width={600}
+                  height={600}
+                  className="object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]" 
+                />
+            </motion.div>
+        </div>
 
-        {/* Detalhes */}
+        {/* Right: Info */}
         <motion.div 
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
             className="flex flex-col justify-center"
         >
-          <div className="mb-4">
-             <span className="px-3 py-1 bg-white/10 rounded-full text-xs font-bold uppercase tracking-wider text-primary-accent">
-               Em Estoque
-             </span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider w-fit mb-6">
+            Lançamento
           </div>
           
-          <h1 className="text-4xl md:text-5xl font-black mb-6 leading-tight">{product.name}</h1>
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">{product.name}</h1>
           
-          <p className="text-muted text-lg mb-8 leading-relaxed">
-            {product.description || 'Experiência de alta performance garantida com este produto de última geração.'}
+          <div className="flex items-center gap-4 mb-8">
+            <span className="text-4xl font-bold text-white">R$ {product.price?.toFixed(2)}</span>
+            <div className="px-3 py-1 bg-green-500/10 text-green-400 rounded-lg text-sm font-semibold">
+                Em 12x sem juros
+            </div>
+          </div>
+
+          <p className="text-gray-400 text-lg mb-10 leading-relaxed border-l-2 border-white/10 pl-6">
+            {product.description || 'Eleve seu setup com este produto exclusivo. Design meticuloso e performance que desafia os limites.'}
           </p>
-          
-          <div className="flex items-end gap-4 mb-10">
-            <span className="text-5xl font-black text-white">R$ {product.price?.toFixed(2)}</span>
-            <span className="text-muted line-through mb-2">R$ {(product.price * 1.2).toFixed(2)}</span>
-          </div>
-          
-          <div className="flex gap-4">
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => { 
-                add({ id: product._id, title: product.name, price: product.price, img: product.images?.[0] }); 
-                router.push('/cart') 
-              }} 
-              className="flex-1 py-4 bg-primary-accent text-white rounded-xl font-bold text-lg shadow-[0_4px_20px_rgba(255,73,118,0.4)] hover:bg-primary-hover transition-colors"
-            >
-              Comprar Agora
-            </motion.button>
-            
-            <button className="p-4 bg-surface border border-white/10 rounded-xl hover:bg-white/5 transition-colors text-white">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-            </button>
+
+          <div className="space-y-4">
+             <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+                    <span className="block text-gray-500 text-xs uppercase tracking-wider mb-1">Garantia</span>
+                    <span className="text-white font-medium">12 Meses</span>
+                </div>
+                <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+                    <span className="block text-gray-500 text-xs uppercase tracking-wider mb-1">Envio</span>
+                    <span className="text-white font-medium">Imediato</span>
+                </div>
+             </div>
+
+             <div className="flex gap-4">
+                <motion.button 
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => { 
+                    add({ id: product._id, title: product.name, price: product.price, img: product.images?.[0] }); 
+                    router.push('/cart') 
+                  }} 
+                  className="flex-1 py-4 bg-white text-black rounded-xl font-bold text-lg hover:bg-gray-200 transition-colors shadow-lg shadow-white/10"
+                >
+                  Adicionar ao Carrinho
+                </motion.button>
+                
+                <button className="p-4 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-colors">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                </button>
+             </div>
           </div>
         </motion.div>
       </div>

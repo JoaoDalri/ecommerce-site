@@ -1,25 +1,3 @@
-import os
-
-BASE_DIR = "."
-
-files_to_create = {
-    # ---------------------------
-    # 1. CONFIGURAÇÃO VERCEL
-    # ---------------------------
-    "vercel.json": """
-{
-  "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install",
-  "outputDirectory": ".next"
-}
-""",
-
-    # ---------------------------
-    # 2. GUIA DE DEPLOY (Passo a Passo)
-    # ---------------------------
-    "DEPLOY_GUIDE.md": """
 # 🚀 Guia de Deploy - LojaPro
 
 Siga estes passos para colocar sua loja online gratuitamente.
@@ -65,19 +43,3 @@ Como o Vercel não tem banco de dados embutido, usaremos o MongoDB Atlas (Cloud)
 2. **Google Auth (Opcional):** Se usar login social, adicione a URL da Vercel nas origens permitidas do Google Cloud Console.
 
 🎉 **Sua loja está pronta!**
-"""
-}
-
-def create_deploy_files():
-    print("🚀 Preparando arquivos para Deploy...")
-    
-    for path, content in files_to_create.items():
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(content.strip())
-        print(f"✅ Criado: {path}")
-
-    print("\n✨ Arquivos de Deploy criados!")
-    print("👉 Leia o arquivo 'DEPLOY_GUIDE.md' para colocar o site no ar.")
-
-if __name__ == "__main__":
-    create_deploy_files()
