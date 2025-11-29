@@ -1,88 +1,78 @@
-"use client";
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import HeroBanner from '@/components/HeroBanner';
+import ProductCard from '@/components/ProductCard';
+import QuickViewModal from '@/components/QuickViewModal';
+
+async function fetchProducts() {
+  // Use caminho relativo para chamar a API interna
+  const res = await fetch('/api/products');
+  if (!res.ok) throw new Error('Falha ao buscar produtos');
+  return res.json();
+}
 
 export default function Home() {
+  const [products, setProducts] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  useEffect(() => {
+    fetchProducts().then(data => setProducts(data)).catch(console.error);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900">
+    <main className="pb-20">
+      <HeroBanner />
 
-      {/* NAVBAR */}
-      <header className="w-full bg-white shadow-sm px-6 py-4 flex items-center justify-between sticky top-0 z-50">
-        <h1 className="text-2xl font-bold text-blue-600">Minha Loja</h1>
-
-        <div className="flex items-center gap-3">
-          <input
-            type="text"
-            placeholder="Buscar produtos..."
-            className="px-4 py-2 w-64 rounded-full border border-gray-300 text-sm outline-none focus:ring-2 focus:ring-blue-400 transition"
-          />
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-medium hover:bg-blue-700 transition">
-            Buscar
-          </button>
-        </div>
-      </header>
-
-      {/* BANNER */}
-      <section className="mt-6 px-6">
-        <div className="w-full h-60 bg-gradient-to-r from-blue-500 to-blue-700 rounded-3xl flex items-center justify-start px-10 shadow-md">
-          <h2 className="text-5xl text-white font-extrabold drop-shadow-lg max-w-xl">
-            As melhores ofertas da semana estao aqui 🔥
-          </h2>
-        </div>
-      </section>
-
-      {/* CATEGORIAS */}
-      <section className="mt-10 px-6">
-        <h3 className="text-2xl font-semibold mb-4">Categorias</h3>
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
-          {["Roupas", "Eletronicos", "Casa", "Beleza", "Games", "Acessorios"].map(
-            (item) => (
-              <div
-                key={item}
-                className="bg-white shadow-sm rounded-xl py-4 text-center text-sm font-medium hover:shadow-lg hover:bg-blue-50 transition cursor-pointer border border-gray-200"
-              >
-                {item}
-              </div>
-            )
-          )}
-        </div>
-      </section>
-
-      {/* PRODUTOS */}
-      <section className="mt-14 px-6 pb-20">
-        <h3 className="text-2xl font-semibold mb-6">Produtos em Destaque</h3>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <div
-              key={i}
-              className="bg-white shadow-md rounded-2xl p-4 hover:shadow-xl transition cursor-pointer border border-gray-200"
-            >
-              <div className="w-full h-40 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
-                <Image
-                  src="/next.svg"
-                  width={70}
-                  height={70}
-                  alt="produto"
-                  className="opacity-40"
-                />
-              </div>
-
-              <h4 className="text-base font-semibold mt-4">
-                Produto {i}
-              </h4>
-
-              <p className="text-gray-600 text-sm mt-1 font-medium">
-                R$ {(i * 19.9).toFixed(2)}
-              </p>
-
-              <button className="mt-4 w-full py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition">
-                Comprar
-              </button>
+      {/* Seção de Benefícios */}
+      <section className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+          {[
+            { icon: '🚚', title: 'Frete Grátis', desc: 'Em compras acima de R$ 200' },
+            { icon: '💳', title: 'Parcelamento', desc: 'Até 12x sem juros' },
+            { icon: '🛡️', title: 'Compra Segura', desc: 'Proteção total dos dados' },
+            { icon: '↩️', title: 'Troca Fácil', desc: '30 dias para devolução' },
+          ].map((item, idx) => (
+            <div key={idx} className="p-6 bg-white rounded-xl border shadow-sm">
+              <div className="text-4xl mb-3">{item.icon}</div>
+              <h3 className="font-bold text-lg">{item.title}</h3>
+              <p className="text-sm text-gray-500">{item.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-    </div>
+      {/* Vitrine de Produtos */}
+      <section className="container mx-auto px-4">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
+            🔥 Destaques da Semana
+          </h2>
+          <a href="/search" className="text-blue-600 font-semibold hover:underline">Ver tudo →</a>
+        </div>
+
+        {products.length === 0 ? (
+          <div className="text-center py-20 text-gray-400">Carregando vitrine...</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {products.map((product: any) => (
+              <ProductCard 
+                key={product._id} 
+                product={product} 
+                onQuickView={(p: any) => setSelectedProduct(p)} 
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Modal de Quick View */}
+      {selectedProduct && (
+        <QuickViewModal 
+          product={selectedProduct} 
+          onClose={() => setSelectedProduct(null)} 
+        />
+      )}
+    </main>
   );
 }

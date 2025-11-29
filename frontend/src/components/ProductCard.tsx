@@ -1,20 +1,66 @@
-'use client'
-import Image from 'next/image'
-import { useCart } from '@/context/CartContext'
+'use client';
 
+import Link from 'next/link';
+import { useCart } from '@/context/CartContext';
 
-export default function ProductCard({ product }: any) {
-    const { add } = useCart()
-    return (
-        <div className="bg-white shadow-lg rounded-2xl p-4 border border-gray-200">
-            <div className="w-full h-40 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
-                <Image src={product.img || '/next.svg'} width={80} height={80} alt={product.title} />
-            </div>
-            <h4 className="mt-3 font-semibold">{product.title}</h4>
-            <p className="text-gray-600">R$ {product.price.toFixed(2)}</p>
-            <button onClick={() => add({ id: product._id, title: product.title, price: product.price })} className="mt-3 w-full py-2 bg-blue-600 text-white rounded-xl">
-                Comprar
-            </button>
+interface ProductCardProps {
+  product: any;
+  onQuickView: (product: any) => void;
+}
+
+export default function ProductCard({ product, onQuickView }: ProductCardProps) {
+  const { addToCart } = useCart();
+
+  return (
+    <div className="group bg-white rounded-xl border hover:shadow-xl transition-all duration-300 relative overflow-hidden">
+      {product.oldPrice && (
+        <span className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded z-10">
+          -20%
+        </span>
+      )}
+
+      <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all z-10 translate-x-4 group-hover:translate-x-0">
+        <button 
+          onClick={() => onQuickView(product)}
+          className="bg-white p-2 rounded-full shadow-md hover:bg-blue-50 text-gray-600" 
+          title="Visualização Rápida"
+        >
+          👁️
+        </button>
+        <button className="bg-white p-2 rounded-full shadow-md hover:bg-red-50 text-gray-600" title="Favoritos">
+          ♥
+        </button>
+      </div>
+
+      <Link href={`/product/${product._id}`}>
+        <div className="h-60 bg-gray-50 flex items-center justify-center p-6">
+          <img 
+            src={product.images?.[0]} 
+            alt={product.title} 
+            className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500 mix-blend-multiply" 
+          />
         </div>
-    )
+      </Link>
+
+      <div className="p-4">
+        <p className="text-xs text-gray-500 mb-1">{product.category}</p>
+        <Link href={`/product/${product._id}`}>
+          <h3 className="font-bold text-gray-800 truncate hover:text-blue-600 mb-2">{product.title}</h3>
+        </Link>
+        
+        <div className="flex items-end justify-between mt-2">
+          <div>
+            {product.oldPrice && <span className="text-sm text-gray-400 line-through">R$ {product.oldPrice}</span>}
+            <div className="text-lg font-bold text-blue-600">R$ {product.price.toFixed(2)}</div>
+          </div>
+          <button 
+            onClick={() => addToCart(product)}
+            className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition"
+          >
+            + 🛒
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }

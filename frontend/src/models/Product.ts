@@ -1,14 +1,16 @@
-import mongoose, { Schema, model, models } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 const ProductSchema = new Schema({
-  name: { type: String, required: true },
+  title: { type: String, required: true },
   description: String,
   price: { type: Number, required: true },
-  category: String,
+  category: { type: String, index: true },
   images: [String],
-  variations: [{
-    color: String,
-    size: String,
-    stock: Number
-  }]
+  stock: { type: Number, default: 0 },
+  featured: { type: Boolean, default: false },
+  averageRating: { type: Number, default: 0 },
 }, { timestamps: true });
+
+ProductSchema.index({ title: 'text', description: 'text' });
+
+export default mongoose.models.Product || mongoose.model('Product', ProductSchema);
