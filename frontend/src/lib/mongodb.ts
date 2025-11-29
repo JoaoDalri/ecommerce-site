@@ -1,30 +1,35 @@
-import { MongoClient } from 'mongodb'
+// frontend/src/lib/dbConnect.ts
+import mongoose from 'mongoose';
 
+const MONGODB_URI = process.env.MONGO_URI || '';
 
-declare global {
-var mongoClient: MongoClient | undefined
+if (!MONGODB_URI) {
+  throw new Error('Por favor, defina a variável MONGO_URI no ficheiro .env.local');
 }
 
+// Cache da conexão para evitar criar múltiplas conexões em desenvolvimento
+let cached = (global as any).mongoose;
 
-const uri = process.env.MONGO_URI || ''
-if (!uri) {
-console.warn('MONGO_URI not set — API will use in-memory seed data')
+if (!cached) {
+  cached = (global as any).mongoose = { conn: null, promise: null };
 }
 
+async function dbConnect() {
+  if (cached.conn) {
+    return cached.conn;
+  }
 
-export async function getMongoClient() {
-if (!uri) return null
-if (global.mongoClient) return global.mongoClient
-const client = new MongoClient(uri)
-await client.connect()
-global.mongoClient = client
-return client
+  if (!cached.promise) {
+    const opts = {
+      bufferCommands: false,
+    };
+
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+      return mongoose;
+    });
+  }
+  cached.conn = await cached.promise;
+  return cached.conn;
 }
 
-
-export async function getProductsCollection() {
-const client = await getMongoClient()
-if (!client) return null
-const db = client.db()
-return db.collection('products')
-}
+export default dbConnect;

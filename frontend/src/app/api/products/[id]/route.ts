@@ -1,21 +1,21 @@
-import { NextResponse } from 'next/server'
-import { getProductsCollection } from '@/lib/mongodb'
-import { seedProducts } from '@/data/seedProducts'
+import { NextResponse } from 'next/server';
+import dbConnect from '@/lib/dbConnect';
+import Product from '@/models/Product';
 
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  await dbConnect();
 
-export async function GET(req: Request) {
-const col = await getProductsCollection()
-if (!col) return NextResponse.json({ products: seedProducts })
-const products = await col.find({}).limit(100).toArray()
-return NextResponse.json({ products })
-}
-
-
-export async function POST(req: Request) {
-const col = await getProductsCollection()
-if (!col) return NextResponse.json({ ok: false, message: 'No DB' }, { status: 500 })
-const body = await req.json()
-const doc = { ...body, createdAt: new Date() }
-const r = await col.insertOne(doc)
-return NextResponse.json({ ok: true, id: r.insertedId })
+  try {
+    const product = await Product.findById(params.id);
+    if (!product) {
+      return NextResponse.json({ error: 'Produto não encontrado' }, { status: 404 });
+    }
+    // Correção: Retorna o produto diretamente, não aninhado em { product: ... }
+    return NextResponse.json(product);
+  } catch (error) {
+    return NextResponse.json({ error: 'ID Inválido' }, { status: 400 });
+  }
 }
