@@ -1,36 +1,31 @@
-'use client'
-import { useEffect, useState, use } from 'react'; // 1. Importa o 'use'
+'use client';
+import { useEffect, useState, use } from 'react';
 import { useCart } from '@/context/CartContext';
+import Reviews from '@/components/Reviews';
 
-// 2. Atualiza o tipo para Promise
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
-  // 3. Desembrulha os params com use()
-  const { id } = use(params); 
-  
+  const { id } = use(params);
   const [product, setProduct] = useState<any>(null);
   const { addToCart } = useCart();
 
   useEffect(() => {
-    // 4. Usa a variável 'id' que foi extraída, em vez de 'params.id'
     fetch(`/api/products?id=${id}`)
       .then(res => res.json())
       .then(data => {
          if(Array.isArray(data)) {
-            // 5. Usa 'id' aqui também
             setProduct(data.find((p: any) => p._id === id));
          } else {
             setProduct(data);
          }
       });
-  }, [id]); // 6. A dependência passa a ser apenas 'id'
+  }, [id]);
 
-  if (!product) return <div className="p-10 text-center">Carregando produto...</div>;
+  if (!product) return <div className="p-10 text-center">Carregando...</div>;
 
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         <div className="bg-white p-10 rounded-2xl shadow-sm flex items-center justify-center min-h-[400px]">
-           {/* Adicionei um estilo extra na imagem para evitar quebras */}
            {product.images?.[0] ? (
              <img src={product.images[0]} className="max-h-full max-w-full object-contain" alt={product.title} />
            ) : (
@@ -38,8 +33,15 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
            )}
         </div>
         <div>
-          <h1 className="text-4xl font-bold mb-4">{product.title}</h1>
+          <h1 className="text-4xl font-bold mb-2">{product.title}</h1>
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-yellow-500 text-xl">★</span>
+            <span className="font-bold">{product.averageRating?.toFixed(1) || '0.0'}</span>
+            <span className="text-gray-400 text-sm">({product.numReviews || 0} avaliações)</span>
+          </div>
+
           <p className="text-gray-600 text-lg mb-6">{product.description || 'Sem descrição'}</p>
+          
           <div className="text-3xl font-bold text-blue-600 mb-8">
             R$ {product.price?.toFixed(2) || '0.00'}
           </div>
@@ -52,6 +54,9 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           </button>
         </div>
       </div>
+
+      {/* Seção de Reviews */}
+      <Reviews product={product} />
     </div>
   );
 }
