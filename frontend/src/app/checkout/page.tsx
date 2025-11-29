@@ -4,10 +4,10 @@ import { useCart } from '@/context/CartContext';
 import { useRouter } from 'next/navigation';
 
 export default function CheckoutPage() {
-  const { items, total, coupon } = useCart();
+  const { items, total, subtotal, coupon, shipping, clearCart } = useCart();
   const [loading, setLoading] = useState(false);
 
-  if (items.length === 0) return <div className="p-10 text-center">Seu carrinho está vazio.</div>;
+  if (items.length === 0 || !shipping) return <div className="p-10 text-center">Carrinho vazio ou Frete não selecionado. Por favor, volte ao carrinho.</div>;
 
   async function handleStripeCheckout(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -31,20 +31,22 @@ export default function CheckoutPage() {
           items, 
           user, 
           shippingAddress,
-          couponCode: coupon?.code // Envia o código do cupão
+          couponCode: coupon?.code,
+          shippingOption: shipping, // ENVIANDO Frete
         }),
       });
 
       const data = await res.json();
       
       if (data.url) {
+        // clearCart(); // Limpar carrinho apenas após sucesso no webhook (futuro passo)
         window.location.href = data.url;
       } else {
-        alert('Erro: ' + data.error);
-        setLoading(false);
+        alert('Erro ao iniciar pagamento: ' + data.error);
       }
     } catch (err) {
-      alert('Erro de conexão');
+      alert('Erro de conexão no pagamento');
+    } finally {
       setLoading(false);
     }
   }
@@ -52,6 +54,7 @@ export default function CheckoutPage() {
   return (
     <div className="container mx-auto py-10 px-4">
       <h1 className="text-3xl font-bold mb-8">Finalizar Compra</h1>
+      
       <div className="grid md:grid-cols-3 gap-8">
         <div className="md:col-span-2">
           <form id="checkout-form" onSubmit={handleStripeCheckout} className="bg-white p-6 rounded-xl shadow-sm border space-y-6">
@@ -61,28 +64,31 @@ export default function CheckoutPage() {
               <input name="city" required placeholder="Cidade" className="border p-3 rounded w-full" />
               <input name="zip" required placeholder="Código Postal" className="border p-3 rounded w-full" />
             </div>
+
+            <div className="mt-6 p-4 bg-blue-50 text-blue-700 rounded-lg text-sm">
+              ℹ️ Você será redirecionado para o ambiente seguro do Stripe para concluir o pagamento.
+            </div>
           </form>
         </div>
+
         <div className="bg-gray-50 p-6 rounded-xl h-fit border">
-          <h3 className="text-lg font-bold mb-4">Resumo</h3>
-          <div className="space-y-2 mb-4">
+          <h3 className="text-lg font-bold mb-4">Resumo do Pedido</h3>
+          <div className="space-y-2 mb-4 text-sm">
             {items.map(item => (
-              <div key={item.id} className="flex justify-between text-sm">
+              <div key={item.id} className="flex justify-between">
                 <span>{item.quantity}x {item.title}</span>
                 <span>R$ {(item.price * item.quantity).toFixed(2)}</span>
               </div>
             ))}
+            {coupon && <div className="flex justify-between text-green-600"><span>Desconto ({coupon.code})</span><span>- R$ {(subtotal - total + shipping!.cost).toFixed(2)}</span></div>}
+            <div className="flex justify-between font-bold">
+              <span>Frete ({shipping.name.split(' ')[0]})</span>
+              <span>{shipping.cost === 0 ? 'GRÁTIS' : `R$ ${shipping.cost.toFixed(2)}`}</span>
+            </div>
           </div>
           
-          {coupon && (
-            <div className="flex justify-between text-green-600 mb-2 text-sm">
-              <span>Cupom ({coupon.code})</span>
-              <span>-{coupon.discount}%</span>
-            </div>
-          )}
-          
           <div className="border-t pt-4 flex justify-between font-bold text-xl">
-            <span>Total a Pagar</span>
+            <span>Total Final</span>
             <span>R$ {total.toFixed(2)}</span>
           </div>
           
@@ -91,7 +97,7 @@ export default function CheckoutPage() {
             disabled={loading}
             className="w-full bg-blue-600 text-white py-3 rounded-lg mt-6 font-bold hover:bg-blue-700 transition disabled:opacity-50"
           >
-            {loading ? 'Redirecionando...' : 'Pagar com Stripe'}
+            {loading ? 'Redirecionando...' : 'Pagar Agora'}
           </button>
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+import Image from 'next/image'; // NOVO
 
 interface ProductCardProps {
   product: any;
@@ -33,12 +34,20 @@ export default function ProductCard({ product, onQuickView }: ProductCardProps) 
       </div>
 
       <Link href={`/product/${product._id}`}>
-        <div className="h-60 bg-gray-50 flex items-center justify-center p-6">
-          <img 
-            src={product.images?.[0]} 
-            alt={product.title} 
-            className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500 mix-blend-multiply" 
-          />
+        {/* NOVO: Container para a imagem otimizada */}
+        <div className="h-60 bg-gray-50 flex items-center justify-center p-6 relative">
+          {product.images?.[0] ? (
+            <Image 
+              src={product.images[0]} 
+              alt={product.title} 
+              fill // Preenche o container
+              style={{ objectFit: 'contain' }}
+              sizes="(max-width: 768px) 50vw, 25vw"
+              className="group-hover:scale-105 transition-transform duration-500 mix-blend-multiply" 
+            />
+          ) : (
+             <span className="text-gray-400">Sem Imagem</span>
+          )}
         </div>
       </Link>
 

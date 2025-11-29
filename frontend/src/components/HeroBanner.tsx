@@ -1,13 +1,17 @@
 import Link from 'next/link';
+import Image from 'next/image'; // NOVO
 
 export default function HeroBanner() {
   return (
     <div className="relative bg-gray-900 text-white overflow-hidden rounded-2xl mx-4 mt-6 md:mx-0">
       <div className="absolute inset-0 opacity-40">
-        <img 
+        {/* NOVO: Imagem Otimizada com Layout Fill e Priority */}
+        <Image 
           src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" 
           alt="Banner Background" 
-          className="w-full h-full object-cover"
+          fill // Preenche o container pai
+          priority // Carrega primeiro
+          style={{ objectFit: 'cover' }}
         />
       </div>
       
