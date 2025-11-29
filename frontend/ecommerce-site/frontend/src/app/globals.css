@@ -4,40 +4,54 @@
 
 :root {
   --font-outfit: 'Outfit', sans-serif;
+  --neon-primary: #6366f1;
+  --neon-secondary: #ec4899;
 }
 
 body {
-  @apply bg-bg text-gray-100 antialiased selection:bg-primary selection:text-white;
+  @apply bg-[#030305] text-gray-100 antialiased selection:bg-indigo-500 selection:text-white;
   overflow-x: hidden;
+  perspective: 2000px; /* Define o palco 3D global */
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  @apply bg-bg;
-}
-::-webkit-scrollbar-thumb {
-  @apply bg-gray-800 rounded-full;
-}
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-600;
+/* --- 3D & Glass Utilities --- */
+
+/* Vidro Premium com Borda de Luz */
+.glass-premium {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 4px 30px rgba(0, 0, 0, 0.1),
+    inset 0 0 20px rgba(255, 255, 255, 0.02);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Glassmorphism Utilities */
-.glass-panel {
-  @apply bg-glass backdrop-blur-xl border border-glass-border shadow-2xl;
+.glass-premium:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    inset 0 0 20px rgba(255, 255, 255, 0.05),
+    0 0 20px rgba(99, 102, 241, 0.2); /* Neon glow sutil */
 }
 
-.glass-card {
-  @apply bg-glass backdrop-blur-md border border-glass-border hover:border-primary/30 transition-all duration-300;
+/* Texto Neon */
+.text-glow {
+  text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
 }
 
-.text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-400;
-}
+/* Scrollbar Custom */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { @apply bg-[#030305]; }
+::-webkit-scrollbar-thumb { @apply bg-gray-800 rounded-full hover:bg-indigo-500 transition-colors; }
 
-.text-gradient-primary {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
+/* Animações de Background */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(2deg); }
 }
+.animate-float-slow { animation: float-slow 8s ease-in-out infinite; }
