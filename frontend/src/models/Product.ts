@@ -1,8 +1,8 @@
 import mongoose, { Schema } from 'mongoose';
 
 const ReviewSchema = new Schema({
-  user: { type: String, required: true }, // Nome do usuário
-  rating: { type: Number, required: true },
+  user: { type: String, required: true },
+  rating: { type: Number, required: true, min: 1, max: 5 },
   comment: { type: String, required: true },
 }, { timestamps: true });
 
@@ -20,7 +20,6 @@ const ProductSchema = new Schema({
   numReviews: { type: Number, default: 0 },
 }, { timestamps: true });
 
-// Índice de texto para busca
 ProductSchema.index({ title: 'text', description: 'text' });
 
 export default mongoose.models.Product || mongoose.model('Product', ProductSchema);

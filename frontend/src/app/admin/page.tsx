@@ -5,12 +5,13 @@ import User from '@/models/User';
 
 async function getStats() {
   await dbConnect();
-  const totalOrders = await Order.countDocuments();
-  const totalProducts = await Product.countDocuments();
-  const totalUsers = await User.countDocuments();
+  // Busca otimizada usando lean()
+  const totalOrders = await Order.countDocuments().lean();
+  const totalProducts = await Product.countDocuments().lean();
+  const totalUsers = await User.countDocuments().lean();
   
-  // Soma total de vendas (agregração)
   const salesData = await Order.aggregate([
+    { $match: { isPaid: true } }, // Apenas vendas pagas
     { $group: { _id: null, total: { $sum: "$total" } } }
   ]);
   const totalSales = salesData[0]?.total || 0;
@@ -19,6 +20,7 @@ async function getStats() {
 }
 
 export default async function AdminDashboard() {
+  // Dados buscados no Server Component (Otimizado)
   const stats = await getStats();
 
   return (
@@ -44,13 +46,9 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      {/* Gráfico ou Lista Recente Mockada */}
       <div className="bg-white p-8 rounded-xl shadow-sm border">
         <h2 className="text-xl font-bold mb-4">Atividade Recente</h2>
-        <p className="text-gray-500">Gráficos de desempenho seriam implementados aqui usando chart.js ou recharts.</p>
-        <div className="h-40 bg-gray-50 mt-4 rounded-lg flex items-center justify-center text-gray-300">
-          [Área do Gráfico]
-        </div>
+        <p className="text-gray-500">Apenas os pedidos pagos entram no cálculo de Vendas Totais.</p>
       </div>
     </div>
   );

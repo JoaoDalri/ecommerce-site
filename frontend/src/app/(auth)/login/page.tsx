@@ -2,9 +2,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext'; // NOVO
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth(); // Usar função login do contexto
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -23,12 +25,11 @@ export default function LoginPage() {
         body: JSON.stringify(data),
       });
 
-      if (!res.ok) throw new Error((await res.json()).error);
+      const userData = await res.json();
+      if (!res.ok) throw new Error(userData.error || 'Login falhou');
 
-      const user = await res.json();
-      localStorage.setItem('user', JSON.stringify(user));
+      login(userData); // SALVAR USUÁRIO NO CONTEXTO
       router.push('/profile');
-      router.refresh();
       
     } catch (err: any) {
       setError(err.message);

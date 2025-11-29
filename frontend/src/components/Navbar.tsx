@@ -3,21 +3,22 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext'; // NOVO: Importar useAuth
 
 export default function Navbar() {
   const { items } = useCart();
+  const { isAuthenticated, user, logout } = useAuth(); // Usar Auth Context
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <nav className="bg-white border-b sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          {/* Logo */}
           <Link href="/" className="text-2xl font-bold text-blue-600">
             LojaPro
           </Link>
 
-          {/* Busca (Desktop) */}
+          {/* Busca */}
           <div className="hidden md:flex flex-1 mx-10 relative">
             <input 
               type="text" 
@@ -31,9 +32,18 @@ export default function Navbar() {
 
           {/* Ícones e Menu */}
           <div className="flex items-center gap-6">
-            <Link href="/profile" className="hidden md:block text-gray-600 hover:text-blue-600">
-              👤 Minha Conta
-            </Link>
+            {isAuthenticated ? (
+                // Se Logado
+                <Link href="/profile" className="hidden md:block text-gray-600 hover:text-blue-600 font-semibold">
+                    👤 {user?.name.split(' ')[0]}
+                </Link>
+            ) : (
+                // Se Deslogado
+                <Link href="/login" className="hidden md:block text-gray-600 hover:text-blue-600">
+                    Login
+                </Link>
+            )}
+            
             <Link href="/cart" className="relative text-gray-600 hover:text-blue-600">
               🛒
               {items.length > 0 && (
@@ -42,7 +52,6 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
-            {/* Mobile Menu Button */}
             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden text-2xl">
               ☰
             </button>
@@ -51,25 +60,16 @@ export default function Navbar() {
 
         {/* Categorias (Sub-menu) */}
         <div className="hidden md:flex gap-8 mt-4 text-sm font-medium text-gray-600 overflow-x-auto pb-2">
-          <Link href="/search?category=eletronicos" className="hover:text-blue-600 whitespace-nowrap">Eletrónicos</Link>
-          <Link href="/search?category=moda" className="hover:text-blue-600 whitespace-nowrap">Moda</Link>
-          <Link href="/search?category=casa" className="hover:text-blue-600 whitespace-nowrap">Casa & Jardim</Link>
-          <Link href="/search?category=desporto" className="hover:text-blue-600 whitespace-nowrap">Desporto</Link>
-          <Link href="/offers" className="text-red-500 font-bold hover:text-red-600 whitespace-nowrap">🔥 Ofertas do Dia</Link>
+          <Link href="/search?category=Eletrônicos" className="hover:text-blue-600 whitespace-nowrap">Eletrónicos</Link>
+          <Link href="/search?category=Moda" className="hover:text-blue-600 whitespace-nowrap">Moda</Link>
+          <Link href="/search" className="hover:text-blue-600 whitespace-nowrap">Busca Avançada</Link>
+          {user?.role === 'admin' && (
+              <Link href="/admin" className="text-purple-500 font-bold hover:text-purple-700 whitespace-nowrap">
+                  ⭐ Admin Dashboard
+              </Link>
+          )}
         </div>
       </div>
-
-      {/* Menu Mobile */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-gray-50 p-4 border-t">
-          <div className="flex flex-col gap-3">
-            <input type="text" placeholder="Buscar..." className="p-2 border rounded mb-2" />
-            <Link href="/category/eletronicos">Eletrónicos</Link>
-            <Link href="/category/moda">Moda</Link>
-            <Link href="/profile">Minha Conta</Link>
-          </div>
-        </div>
-      )}
     </nav>
   );
 }

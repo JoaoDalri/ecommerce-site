@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
-import Image from 'next/image'; // NOVO
+import Image from 'next/image'; 
 
 interface ProductCardProps {
   product: any;
@@ -11,6 +11,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, onQuickView }: ProductCardProps) {
   const { addToCart } = useCart();
+  const imageSrc = product.images?.[0] || '/placeholder.png'; // Fallback seguro
 
   return (
     <div className="group bg-white rounded-xl border hover:shadow-xl transition-all duration-300 relative overflow-hidden">
@@ -20,6 +21,7 @@ export default function ProductCard({ product, onQuickView }: ProductCardProps) 
         </span>
       )}
 
+      {/* Ações Flutuantes */}
       <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all z-10 translate-x-4 group-hover:translate-x-0">
         <button 
           onClick={() => onQuickView(product)}
@@ -34,20 +36,16 @@ export default function ProductCard({ product, onQuickView }: ProductCardProps) 
       </div>
 
       <Link href={`/product/${product._id}`}>
-        {/* NOVO: Container para a imagem otimizada */}
         <div className="h-60 bg-gray-50 flex items-center justify-center p-6 relative">
-          {product.images?.[0] ? (
-            <Image 
-              src={product.images[0]} 
-              alt={product.title} 
-              fill // Preenche o container
-              style={{ objectFit: 'contain' }}
-              sizes="(max-width: 768px) 50vw, 25vw"
-              className="group-hover:scale-105 transition-transform duration-500 mix-blend-multiply" 
-            />
-          ) : (
-             <span className="text-gray-400">Sem Imagem</span>
-          )}
+          {/* USANDO OTIMIZAÇÃO NATIVA DO NEXT/IMAGE (MELHOR PARA PRODUÇÃO) */}
+          <Image 
+            src={imageSrc} 
+            alt={product.title} 
+            fill // Preenche o container
+            sizes="(max-width: 768px) 50vw, 25vw"
+            style={{ objectFit: 'contain' }}
+            className="group-hover:scale-105 transition-transform duration-500 mix-blend-multiply" 
+          />
         </div>
       </Link>
 
