@@ -7,47 +7,50 @@ import { useCart } from '@/lib/context/CartContext'
 export default function ProductCard({ product, onQuickView }: any) {
     const { add } = useCart()
     
+    // Fallback de segurança para a imagem
+    const imageSrc = (product.img && product.img.length > 0) ? product.img : '/next.svg';
+
     return (
         <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
             whileHover={{ y: -10 }}
             className="group relative h-full"
         >
-            {/* Card Body - Fundo Escuro Glass */}
-            <div className="relative h-full glass-panel rounded-2xl p-4 flex flex-col overflow-hidden group-hover:border-indigo-500/30 transition-all duration-300 bg-[#121212]">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary via-purple-500 to-accent rounded-3xl opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500" />
+
+            <div className="relative h-full glass-panel rounded-3xl p-4 flex flex-col overflow-hidden border border-white/5 group-hover:border-primary/30 transition-all bg-[#0a0a0a]">
                 
-                {/* Imagem */}
-                <div className="relative w-full aspect-square mb-4 rounded-xl bg-gradient-to-b from-white/5 to-transparent flex items-center justify-center overflow-hidden">
+                <div className="relative w-full aspect-square mb-4 rounded-2xl bg-gradient-to-b from-white/5 to-transparent flex items-center justify-center overflow-hidden">
                     <Image 
-                        src={product.img || '/next.svg'} 
-                        width={200} height={200}
-                        alt={product.title}
-                        className="object-contain drop-shadow-xl transition-transform duration-500 group-hover:scale-110"
+                        src={imageSrc} 
+                        width={250} height={250}
+                        alt={product.title || 'Produto'}
+                        className="object-contain drop-shadow-2xl transition-transform duration-500 group-hover:scale-110 relative z-10"
                     />
                     
-                    {/* Ações Rápidas */}
-                    <div className="absolute bottom-3 flex gap-2 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all">
-                        <button 
-                            onClick={(e) => { e.preventDefault(); onQuickView(); }}
-                            className="bg-white text-black px-4 py-2 rounded-lg font-bold text-xs hover:bg-gray-200"
-                        >
-                            Ver
-                        </button>
-                    </div>
+                    <button 
+                        onClick={(e) => { e.preventDefault(); onQuickView(); }}
+                        className="absolute bottom-3 bg-white text-black px-4 py-1.5 rounded-full font-bold text-xs hover:bg-gray-200 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all z-20"
+                    >
+                        Espiar
+                    </button>
                 </div>
 
-                {/* Info */}
                 <div className="mt-auto">
-                    <h3 className="text-gray-200 font-medium text-lg mb-1 truncate group-hover:text-white transition-colors">{product.title}</h3>
-                    <p className="text-xs text-gray-500 mb-3">{product.category || 'Eletrônicos'}</p>
+                    <h3 className="text-gray-100 font-bold text-lg mb-1 truncate">{product.title}</h3>
+                    <p className="text-gray-500 text-xs mb-3 line-clamp-2">{product.description}</p>
                     
                     <div className="flex items-center justify-between">
-                        <span className="text-lg font-bold text-indigo-400">R$ {product.price.toFixed(2)}</span>
-                        <button 
-                            onClick={() => add({ id: product._id, title: product.title, price: product.price, img: product.img })}
-                            className="w-8 h-8 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center transition-colors"
+                        <span className="text-xl font-bold text-primary">R$ {product.price?.toFixed(2)}</span>
+                        <motion.button 
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => add({ id: product._id, title: product.title, price: product.price, img: imageSrc })}
+                            className="w-10 h-10 rounded-xl bg-primary hover:bg-indigo-500 text-white flex items-center justify-center shadow-lg shadow-primary/20 transition-all"
                         >
                             +
-                        </button>
+                        </motion.button>
                     </div>
                 </div>
             </div>

@@ -1,13 +1,11 @@
-// frontend/src/lib/dbConnect.ts
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGO_URI || '';
+const MONGODB_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/ecommerce';
 
 if (!MONGODB_URI) {
-  throw new Error('Por favor, defina a variável MONGO_URI no ficheiro .env.local');
+  throw new Error('Please define the MONGO_URI environment variable inside .env.local');
 }
 
-// Cache da conexão para evitar criar múltiplas conexões em desenvolvimento
 let cached = (global as any).mongoose;
 
 if (!cached) {

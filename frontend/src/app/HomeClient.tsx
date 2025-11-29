@@ -7,7 +7,9 @@ export default function HomeClient({ initialProducts }: { initialProducts: any[]
     <div className="min-h-screen bg-[#050505] text-white">
       <Hero3D />
       <div className="container mx-auto px-4 py-20 relative z-10">
-        <h2 className="text-3xl font-bold text-white mb-10 pl-4 border-l-4 border-[#6366f1]">Destaques</h2>
+        <h2 className="text-4xl font-bold text-white mb-12 pl-6 border-l-8 border-primary">
+            Destaques da Loja
+        </h2>
         <ProductGrid products={initialProducts} />
       </div>
     </div>

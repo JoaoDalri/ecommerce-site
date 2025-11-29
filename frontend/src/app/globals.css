@@ -6,30 +6,23 @@
   --font-outfit: 'Outfit', sans-serif;
 }
 
+/* Força bruta no background */
 html, body {
+  background-color: #050505 !important;
+  color: #ffffff !important;
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #050505 !important; /* Força o preto */
-  color: #ffffff;
 }
 
 body {
   font-family: var(--font-outfit), sans-serif;
   overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
 }
 
-/* Glassmorphism */
 .glass-panel {
-  background: rgba(20, 20, 25, 0.6);
+  background: rgba(20, 20, 25, 0.7);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
 }
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #050505; }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #6366f1; }
